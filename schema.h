@@ -4,17 +4,19 @@
 #define SchemaHVar  // ge-include wordt
 
 #include "constantes.h"
+#include <vector>
+using namespace std;
 
 class Schema
 { public:
 
     // Default constructor
-    Schema ();
+    Schema();
 
     // Constructor met parameter
     // Controleer of de parameter nwNrSpelers een bruikbaar aantal spelers
     // is, binnen de grenzen van de opdracht.
-    Schema (int nwNrSpelers);
+    Schema(int nwNrSpelers);
 
     // Lees een deelschema, bestaande uit een geheel aantal rondes,
     // in uit invoernaam. De invoer bestaat uit
@@ -34,13 +36,13 @@ class Schema
     // * true, als alle controles goed uitpakken.
     //   In dat geval is alle ingelezen informatie in het object opgeslagen.
     // * false, anders
-    bool leesInDeelschema (const char* invoerNaam);
+    bool leesInDeelschema(const char* invoerNaam);
 
     // Druk parameter schema overzichtelijk af op het scherm.
     // Pre:
     // * membervariabele nrSpelers heeft een bruikbare waarde
     // * parameter schema bevat een compleet schema dat past bij nrSpelers
-    void drukAfSchema (int schema[MaxGrootteSchema]);
+    void drukAfSchema(int schema[MaxGrootteSchema]);
 
     // Bepaal met behulp van backtracking een geldig schema voor het huidige
     // aantal spelers. Het maakt niet uit wat de `waarde' van dit schema is
@@ -58,7 +60,7 @@ class Schema
     //   op positie 0 van het array.
     // * aantalDeelschemas is gelijk aan het aantal deelschemas dat we
     //   hebben gezien bij het bepalen van een schema
-    bool bepaalSchemaBT (int schema[MaxGrootteSchema],
+    bool bepaalSchemaBT(int schema[MaxGrootteSchema],
                          long long &aantalDeelschemas);
 
     // Bepaal met behulp van backtracking een geldig schema voor het huidige
@@ -82,8 +84,8 @@ class Schema
     //   achter elkaar, beginnend op positie 0 van het array.
     // * aantalDeelschemas is gelijk aan het aantal deelschemas dat we
     //   hebben gezien bij het bepalen van een minimaal schema
-    bool bepaalMinSchema (int schema[MaxGrootteSchema],
-                          long long &aantalDeelschemas, bool bouwWaardeOp);
+    bool bepaalMinSchema(int schema[MaxGrootteSchema],
+                         long long &aantalDeelschemas, bool bouwWaardeOp);
 
     // Bepaal op een gretige manier een schema voor het huidige aantal
     // spelers. Ofwel:
@@ -101,16 +103,17 @@ class Schema
     // Post:
     // * parameter `schema' bevat een compleet schema voor het huidige
     //   aantal spelers
-    void bepaalSchemaGretig (int schema[MaxGrootteSchema]);
+    void bepaalSchemaGretig(int schema[MaxGrootteSchema]);
 
   private:
 
 // TODO: uw eigen private memberfuncties
+    bool inVector(vector<int> v, int value);
 
     int nrSpelers;       // aantal spelers bij dit schema
 
 // TODO: uw eigen private membervariabelen
-
+    vector<int> hulpSchema;
 };
 
 #endif
