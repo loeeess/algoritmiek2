@@ -153,7 +153,7 @@ void hoofdmenu ()
               cout << "Geef de naam van het tekstbestand met de invoer: ";
               cin >> invoernaam;
               if (s1 -> leesInDeelschema (invoernaam))
-              { // s1 -> drukAf ();
+              { //s1 -> drukAf ();
                 menuVoorInstantie (s1);
               }
               delete s1;  // netjes opruimen

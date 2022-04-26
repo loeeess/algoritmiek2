@@ -109,8 +109,14 @@ class Schema
 
 // TODO: uw eigen private memberfuncties
     bool inVector(vector<int> v, int value);
+    void leesInDeelschema(int schema[MaxGrootteSchema]);
+    void updateMatrix(int s1, int s2, int s3, int s4);
 
     int nrSpelers;       // aantal spelers bij dit schema
+    int schemaGrootte;
+    // Matrices voor bijhouden teamg
+    int voorMatrix[MaxNrSpelers][MaxNrSpelers];
+    int tegenMatrix[MaxNrSpelers][MaxNrSpelers];
 
 // TODO: uw eigen private membervariabelen
     vector<int> hulpSchema;
