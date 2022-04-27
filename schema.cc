@@ -114,6 +114,14 @@ bool Schema::bepaalSchemaBT(int schema[MaxGrootteSchema],
   if (nrSpelers % 4 == 2 || nrSpelers % 4 == 3) {
     return false;
   }
+
+  schemaGrootte = 0;
+  for (int i = 0; i < nrSpelers; i++) {
+    for (int j = 0; j < nrSpelers; j++) {
+      voorMatrix[i][j] = 0;
+      tegenMatrix[i][j] = 0;
+    }
+  }
                               
   leesInDeelschema(schema);
   // printMatrices();
