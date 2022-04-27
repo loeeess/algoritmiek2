@@ -24,6 +24,7 @@ Schema::Schema(int nwNrSpelers) {
   } else {
     nrSpelers = MaxNrSpelers;
   }
+  cout << "aantal spelers: " << nrSpelers << endl;
   schemaGrootte = 0;
   
   for (int i = 0; i < nrSpelers; i++) {
@@ -96,8 +97,9 @@ bool Schema::leesInDeelschema(const char* invoerNaam) {
 
 void Schema::drukAfSchema(int schema[MaxGrootteSchema]) {
   for (int i = 0; i < schemaGrootte; i++) {
-    if ((i + 1) % nrSpelers == 0) {
-      cout << endl << "Ronde " << i / nrSpelers << endl;
+    int spelersPerRonde = (nrSpelers % 4 == 0) ? nrSpelers : nrSpelers - 1;
+    if ((i + 1) % spelersPerRonde == 1) {
+      cout << endl << "Ronde " << i / spelersPerRonde << endl;
     }
     cout << " " << schema[i];
   }
@@ -106,17 +108,66 @@ void Schema::drukAfSchema(int schema[MaxGrootteSchema]) {
 //*************************************************************************
 
 bool Schema::bepaalSchemaBT(int schema[MaxGrootteSchema], 
-                            long long &aantalDeelschemas) { 
+                            long long &aantalDeelschemas) {
+  aantalDeelschemas = 0;
+
   if (nrSpelers % 4 == 2 || nrSpelers % 4 == 3) {
     return false;
   }
                               
-  leesInDeelschema(int schema[MaxGrootteSchema]);
-  
+  leesInDeelschema(schema);
+  // printMatrices();
 
-  return true;
-
+  return bepaalSchemaBTRecur(schema, aantalDeelschemas);
 }  //  bepaalSchemaBT
+
+//*************************************************************************
+
+bool Schema::bepaalSchemaBTRecur(int schema[MaxGrootteSchema],
+                                 long long &aantalDeelschemas) {
+  if (!schemaCorrect()) {
+    return false;
+  } else if (schemaCompleet()) {
+      return true;
+  } else {
+    for (int s = 0; s < nrSpelers; s++) {
+      aantalDeelschemas++;
+      schema[schemaGrootte] = s;
+      schemaGrootte++;
+      updateMatrix(schema);
+      if (bepaalSchemaBTRecur(schema, aantalDeelschemas)) {
+        return true;
+      }
+      undoMatrix(schema);
+      schemaGrootte--;
+    }
+    return false;
+  }
+} // bepaalSchemaBTRecur
+
+//*************************************************************************
+
+bool Schema::schemaCompleet() {
+  for (int i = 0; i < nrSpelers; i++) {
+    for (int j = 0; j < nrSpelers; j++) {
+      if ((voorMatrix[i][j] != 1 && i != j) || (tegenMatrix[i][j] != 2 && i != j)) {
+        return false;
+      }
+    }
+  }
+  return true;
+} // schemaCompleet
+
+bool Schema::schemaCorrect() {
+  for (int i = 0; i < nrSpelers; i++) {
+    for (int j = 0; j < nrSpelers; j++) {
+      if (voorMatrix[i][j] > 1 || tegenMatrix[i][j] > 2 || (i == j && (voorMatrix[i][j] != 0 || tegenMatrix[i][j] != 0))) {
+        return false;
+      }
+    }
+  }
+  return true;
+} // schemaCorrect
 
 //*************************************************************************
 
@@ -125,7 +176,7 @@ bool Schema::bepaalMinSchema(int schema[MaxGrootteSchema],
   if (nrSpelers % 4 == 2 || nrSpelers % 4 == 3) {
     return false;
   }
-  leesInDeelschema(int schema[MaxGrootteSchema]);
+  leesInDeelschema(schema);
 
   return true;
 
@@ -135,7 +186,7 @@ bool Schema::bepaalMinSchema(int schema[MaxGrootteSchema],
 
 void Schema::bepaalSchemaGretig(int schema[MaxGrootteSchema]) {
 
-  leesInDeelschema(int schema[MaxGrootteSchema]);
+  leesInDeelschema(schema);
 
 }  // bepaalSchemaGretig
 
@@ -166,42 +217,94 @@ void Schema::leesInDeelschema(int schema[MaxGrootteSchema]) {
 
 //*************************************************************************
 
-void Schema::updateMatrix(int s1, int s2, int s3, int s4) {
-  // if (s1 < s3) {
-  //   voorMatrix[s1][s3]++;
-  // } else {
-  //   voorMatrix[s3][s1]++;
-  // }
-  // if (s2 < s4) {
-  //   voorMatrix[s2][s4]++;
-  // } else {
-  //   voorMatrix[s4][s2]++;
-  // }
-  // if (s1 < s2) {
-  //   tegenMatrix[s1][s2]++;
-  // } else {
-  //   tegenMatrix[s2][s1]++;
-  // }
-  // if (s1 < s4) {
-  //   tegenMatrix[s1][s4]++;
-  // } else {
-  //   tegenMatrix[s4][s1]++;
-  // }
-  // if (s2 < s3) {
-  //   tegenMatrix[s2][s3]++;
-  // } else {
-  //   tegenMatrix[s3][s2]++;
-  // }
-  // if (s3 < s4) {
-  //   tegenMatrix[s3][s4]++;
-  // } else {
-  //   tegenMatrix[s4][s3]++;
-  // }
-  
+void Schema::undoMatrix(int schema[MaxGrootteSchema]) {
+  if (schemaGrootte % 4 == 0) {
+    int s1 = schema[schemaGrootte - 4];
+    int s2 = schema[schemaGrootte - 3];
+    int s3 = schema[schemaGrootte - 2];
+    int s4 = schema[schemaGrootte - 1];
+    voorMatrix[s4][s2]--; voorMatrix[s2][s4]--;
+    tegenMatrix[s4][s1]--; tegenMatrix[s1][s4]--;
+    tegenMatrix[s4][s3]--; tegenMatrix[s3][s4]--;
+  } else if (schemaGrootte % 4 == 2) {
+    int s1 = schema[schemaGrootte - 2];
+    int s2 = schema[schemaGrootte - 1];
+    tegenMatrix[s1][s2]--; tegenMatrix[s2][s1]--;
+  } else if (schemaGrootte % 4 == 3) {
+    int s1 = schema[schemaGrootte - 3];
+    int s2 = schema[schemaGrootte - 2];
+    int s3 = schema[schemaGrootte - 1];
+    voorMatrix[s1][s3]--; voorMatrix[s3][s1]--;
+    tegenMatrix[s3][s2]--; tegenMatrix[s2][s3]--;
+  }
+}
+
+//*************************************************************************
+
+void Schema::updateMatrix(int schema[MaxGrootteSchema]) {
+  if (schemaGrootte % 4 == 0) {
+    int s1 = schema[schemaGrootte - 4];
+    int s2 = schema[schemaGrootte - 3];
+    int s3 = schema[schemaGrootte - 2];
+    int s4 = schema[schemaGrootte - 1];
+    voorMatrix[s4][s2]++; voorMatrix[s2][s4]++;
+    tegenMatrix[s4][s1]++; tegenMatrix[s1][s4]++;
+    tegenMatrix[s4][s3]++; tegenMatrix[s3][s4]++;
+  } else if (schemaGrootte % 4 == 2) {
+    int s1 = schema[schemaGrootte - 2];
+    int s2 = schema[schemaGrootte - 1];
+    tegenMatrix[s1][s2]++; tegenMatrix[s2][s1]++;
+  } else if (schemaGrootte % 4 == 3) {
+    int s1 = schema[schemaGrootte - 3];
+    int s2 = schema[schemaGrootte - 2];
+    int s3 = schema[schemaGrootte - 1];
+    voorMatrix[s1][s3]++; voorMatrix[s3][s1]++;
+    tegenMatrix[s3][s2]++; tegenMatrix[s2][s3]++;
+  }
+  // Modulo 1 means start of a new table with 1 player, so no new teammates
+  // or opponents
+}
+
+//*************************************************************************
+
+void Schema::updateMatrix(int s1, int s2, int s3, int s4) {  
   voorMatrix[s1][s3]++; voorMatrix[s3][s1]++;
   voorMatrix[s2][s4]++; voorMatrix[s4][s2]++;
   tegenMatrix[s1][s2]++; tegenMatrix[s2][s1]++;
   tegenMatrix[s1][s4]++; tegenMatrix[s4][s1]++;
   tegenMatrix[s2][s3]++; tegenMatrix[s3][s2]++;
   tegenMatrix[s3][s4]++; tegenMatrix[s4][s3]++;
-}
+} // updateMatrix
+
+//*************************************************************************
+
+void Schema::printMatrices() {
+  cout << endl << "VoorMatrix" << endl;
+  cout << "   ";
+  for (int s = 0; s < nrSpelers; s++) {
+    cout << s << " ";
+  }
+  cout << endl;
+  for (int i = 0; i < nrSpelers; i++) {
+    cout << i << ": ";
+    for (int j = 0; j < nrSpelers; j++) {
+      cout << voorMatrix[i][j] << " ";
+    }
+    cout << endl;
+  }
+  cout << endl << "TegenMatrix" << endl;
+  cout << "   ";
+  for (int s = 0; s < nrSpelers; s++) {
+    cout << s << " ";
+  }
+  cout << endl;
+  for (int i = 0; i < nrSpelers; i++) {
+    cout << i << ": ";
+    for (int j = 0; j < nrSpelers; j++) {
+      cout << tegenMatrix[i][j] << " ";
+    }
+    cout << endl;
+  }
+} // printMatrices
+
+//*************************************************************************

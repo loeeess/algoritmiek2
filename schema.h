@@ -110,7 +110,13 @@ class Schema
 // TODO: uw eigen private memberfuncties
     bool inVector(vector<int> v, int value);
     void leesInDeelschema(int schema[MaxGrootteSchema]);
+    bool bepaalSchemaBTRecur(int schema[MaxGrootteSchema], long long &aantalDeelschemas);
+    bool schemaCompleet();
+    bool schemaCorrect();
+    void updateMatrix(int schema[MaxGrootteSchema]);
     void updateMatrix(int s1, int s2, int s3, int s4);
+    void undoMatrix(int schema[MaxGrootteSchema]);
+    void printMatrices();
 
     int nrSpelers;       // aantal spelers bij dit schema
     int schemaGrootte;
