@@ -110,22 +110,34 @@ class Schema
 // TODO: uw eigen private memberfuncties
     bool inVector(vector<int> v, int value);
     void leesInDeelschema(int schema[MaxGrootteSchema]);
-    bool bepaalSchemaBTRecur(int schema[MaxGrootteSchema], long long &aantalDeelschemas);
+    bool bepaalSchemaBTRecur(int schema[MaxGrootteSchema], 
+                             long long &aantalDeelschemas);
+    bool bepaalMinSchemaRecur(int schema[MaxGrootteSchema], 
+                              long long &aantalDeelschemas, bool bouwWaardeOp);
     bool schemaCompleet();
     bool schemaCorrect();
+    float updateRondeMatrix(int schema[MaxGrootteSchema], bool unod);
+    float updateRondeMatrix(int s1, int s2, int ronde, bool undo);
     void updateMatrix(int schema[MaxGrootteSchema]);
     void updateMatrix(int s1, int s2, int s3, int s4);
     void undoMatrix(int schema[MaxGrootteSchema]);
     void printMatrices();
+    void resetSchema(int schema[MaxGrootteSchema]);
+    int vrijInRondeMatrix(int s1, int s2);
+    float deelScore(int x);
 
     int nrSpelers;       // aantal spelers bij dit schema
     int schemaGrootte;
+    float randScore;
+    float minWaarde;
     // Matrices voor bijhouden teamg
     int voorMatrix[MaxNrSpelers][MaxNrSpelers];
     int tegenMatrix[MaxNrSpelers][MaxNrSpelers];
+    int rondeMatrix[MaxNrSpelers][MaxNrSpelers][4];
 
 // TODO: uw eigen private membervariabelen
     vector<int> hulpSchema;
+    int minSchema[MaxGrootteSchema];
 };
 
 #endif
