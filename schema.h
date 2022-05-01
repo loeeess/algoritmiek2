@@ -1,4 +1,5 @@
 // Definitie van klasse Schema
+// Opdracht 2 gemaakt door Lochyin Cheng (s3383040) en Loes Crama (s3335798)
 
 #ifndef SchemaHVar  // voorkom dat dit bestand meerdere keren
 #define SchemaHVar  // ge-include wordt
@@ -116,7 +117,7 @@ class Schema
                               long long &aantalDeelschemas, bool bouwWaardeOp);
     bool schemaCompleet();
     bool schemaCorrect();
-    float updateRondeMatrix(int schema[MaxGrootteSchema], bool unod);
+    float updateRondeMatrix(int schema[MaxGrootteSchema], bool undo);
     float updateRondeMatrix(int s1, int s2, int ronde, bool undo);
     void updateMatrix(int schema[MaxGrootteSchema]);
     void updateMatrix(int s1, int s2, int s3, int s4);
@@ -125,11 +126,17 @@ class Schema
     void resetSchema(int schema[MaxGrootteSchema]);
     int vrijInRondeMatrix(int s1, int s2);
     float deelScore(int x);
+    void kopieerSchema(int a1[MaxGrootteSchema], int a2[MaxGrootteSchema]);
+    float schemaWaarde(int schema[MaxGrootteSchema]);
+    void printRondeMatrix();
 
-    int nrSpelers;       // aantal spelers bij dit schema
+    int nrSpelers; // aantal spelers bij dit schema
     int schemaGrootte;
     float randScore;
+    float waarde;
     float minWaarde;
+    int finalGrootte;
+    int aantRondes;
     // Matrices voor bijhouden teamg
     int voorMatrix[MaxNrSpelers][MaxNrSpelers];
     int tegenMatrix[MaxNrSpelers][MaxNrSpelers];

@@ -1,4 +1,5 @@
 // Implementatie van klasse Schema
+// Opdracht 2 gemaakt door Lochyin Cheng (s3383040) en Loes Crama (s3335798)
 
 #include <iostream>
 #include <fstream>
@@ -38,7 +39,8 @@ Schema::Schema(int nwNrSpelers) {
   }
 
   schemaGrootte = 0;
-  randScore = (nrSpelers - 1) / 3.0;
+  aantRondes = (nrSpelers % 4 == 0) ? nrSpelers - 1 : nrSpelers;
+  randScore = aantRondes / 3.0;
   minWaarde = 1000000000;
   
   for (int i = 0; i < nrSpelers; i++) {
@@ -46,7 +48,7 @@ Schema::Schema(int nwNrSpelers) {
       voorMatrix[i][j] = 0;
       tegenMatrix[i][j] = 0;
       for (int z = 0; z < 4; z++) {
-        scoreMatrix[i][j][z] = -1;
+        rondeMatrix[i][j][z] = -1;
       }
     }
   }
@@ -72,14 +74,15 @@ bool Schema::leesInDeelschema(const char* invoerNaam) {
   return false;
   }
 
-  randScore = (nrSpelers - 1) / 3.0;
+  aantRondes = (nrSpelers % 4 == 0) ? nrSpelers - 1 : nrSpelers;
+  randScore = aantRondes / 3.0;
   minWaarde = 1000000000;
   for (int i = 0; i < nrSpelers; i++) {
     for (int j = 0; j < nrSpelers; j++) {
       voorMatrix[i][j] = 0;
       tegenMatrix[i][j] = 0;
       for (int z = 0; z < 4; z++) {
-        scoreMatrix[i][j][z] = -1;
+        rondeMatrix[i][j][z] = -1;
       }
     }
   }
@@ -98,7 +101,6 @@ bool Schema::leesInDeelschema(const char* invoerNaam) {
   // Check of waardes een spelernummer zijn
   vector<int> ronde;
   for (int i = 0; i < hulpSchema.size(); i++) {
-    cout << endl;
     if (!integerInBereik(hulpSchema[i], 0, nrSpelers - 1)) {
       cout << "Error: spelernummer buiten bereik" << endl;
       hulpSchema.clear();
@@ -116,7 +118,6 @@ bool Schema::leesInDeelschema(const char* invoerNaam) {
   }
 
   return true;
-
 }  // leesInDeelschema
 
 //*************************************************************************
@@ -126,16 +127,19 @@ void Schema::drukAfSchema(int schema[MaxGrootteSchema]) {
     int spelersPerRonde = (nrSpelers % 4 == 0) ? nrSpelers : nrSpelers - 1;
     if ((i + 1) % spelersPerRonde == 1) {
       cout << endl << "Ronde " << i / spelersPerRonde << endl;
+    } else if ((i + 1) % 4 == 1) {
+      cout << " |";
     }
     cout << " " << schema[i];
   }
-  cout << endl;
+  cout << endl << endl;
 }  // drukAfSchema
 
 //*************************************************************************
 
 bool Schema::bepaalSchemaBT(int schema[MaxGrootteSchema], 
                             long long &aantalDeelschemas) {
+  aantalDeelschemas = 0;
   resetSchema(schema);
 
   return bepaalSchemaBTRecur(schema, aantalDeelschemas);
@@ -146,6 +150,7 @@ bool Schema::bepaalSchemaBT(int schema[MaxGrootteSchema],
 bool Schema::bepaalSchemaBTRecur(int schema[MaxGrootteSchema],
                                  long long &aantalDeelschemas) {
   if (!schemaCorrect()) {
+    cout << "incorrect schema" << endl;
     return false;
   } else if (schemaCompleet()) {
     return true;
@@ -169,38 +174,73 @@ bool Schema::bepaalSchemaBTRecur(int schema[MaxGrootteSchema],
 
 bool Schema::bepaalMinSchema(int schema[MaxGrootteSchema],
                              long long &aantalDeelschemas, bool bouwWaardeOp) { 
-  resetSchema();
-
-  return bepaalMinSchemaRecur(schema, aantalDeelschemas, bouwWaardeOp);
+  aantalDeelschemas = 0;
+  resetSchema(schema);
+  waarde = schemaWaarde(schema);
+  printRondeMatrix();
+  printMatrices();
+  bool gelukt = bepaalMinSchemaRecur(schema, aantalDeelschemas, bouwWaardeOp);
+  schemaGrootte = finalGrootte;
+  kopieerSchema(schema, minSchema);
+  cout << "Minwaarde: " << minWaarde << endl;
+  return gelukt;
 
 }  // bepaalMinSchema
   
 //*************************************************************************
 
-bool Schema::bepaalMinSchemaRecur(int schema[MaxGrootteSchema]
+bool Schema::bepaalMinSchemaRecur(int schema[MaxGrootteSchema],
                               long long &aantalDeelschemas, bool bouwWaardeOp) {
+  cout << "Enter recursie" << endl;
+  cout << "min waarde: " << minWaarde << endl;
+  cout << "waarde: " << waarde << endl;
   if (!schemaCorrect()) {
+    cout << "Schema niet correct" << endl;
     return false;
   } else if (schemaCompleet()) {
-    float waarde = updateRondeMatrix(schema, false);
+    if (!bouwWaardeOp) {
+      waarde = schemaWaarde(schema);
+      cout << "Waarde na schemaWaarde: " << waarde << endl;
+    }
     if (waarde < minWaarde) {
       minWaarde = waarde;
-      minSchema = schema;
+      kopieerSchema(minSchema, schema);
+      finalGrootte = schemaGrootte;
+      drukAfSchema(minSchema);
+      cout << "Nieuwe minWaarde: " << minWaarde << endl;
     }
     return true;
   } else {
+    bool schemaGevonden = false;
     for (int s = 0; s < nrSpelers; s++) {
+      cout << "speler: " << s << endl;
       aantalDeelschemas++;
       schema[schemaGrootte] = s;
       schemaGrootte++;
       updateMatrix(schema);
-      if (bepaalSchemaBTRecur(schema, aantalDeelschemas)) {
-        return true;
+      float deelWaarde;
+      if (bouwWaardeOp) {
+        printRondeMatrix();
+        deelWaarde = updateRondeMatrix(schema, false);
+        printRondeMatrix();
+        cout << "Deelwaarde+: " << deelWaarde << endl;
+        waarde += deelWaarde;
+      }
+      if ((!bouwWaardeOp || waarde < minWaarde) && 
+      bepaalMinSchemaRecur(schema, aantalDeelschemas, bouwWaardeOp)) { 
+        cout << "Recur called" << endl;
+        schemaGevonden = true;
       }
       undoMatrix(schema);
+      if (bouwWaardeOp) {
+        waarde -= deelWaarde;
+        int x = updateRondeMatrix(schema, true);
+        cout << "Deelwaarde-: " << x << endl;
+        printRondeMatrix();
+      }
       schemaGrootte--;
     }
-    return false;
+    return schemaGevonden;
   }
 }
 
@@ -311,19 +351,22 @@ void Schema::updateMatrix(int schema[MaxGrootteSchema]) {
     voorMatrix[s1][s3]++; voorMatrix[s3][s1]++;
     tegenMatrix[s3][s2]++; tegenMatrix[s2][s3]++;
   }
-  // Modulo 1 means start of a new table with 1 player, so no new teammates
-  // or opponents
+  // Modulo 1 betekent start van een nieuwe tafel met 1 speler, 
+  // dus geen nieuwe teams of tegenstanders
 }
 
 //*************************************************************************
 
-void Schema::updateMatrix(int s1, int s2, int s3, int s4) {  
+void Schema::updateMatrix(int s1, int s2, int s3, int s4) {
+  cout << s1 << s2 << s3 << s4 << endl;
+  printMatrices();
   voorMatrix[s1][s3]++; voorMatrix[s3][s1]++;
   voorMatrix[s2][s4]++; voorMatrix[s4][s2]++;
   tegenMatrix[s1][s2]++; tegenMatrix[s2][s1]++;
   tegenMatrix[s1][s4]++; tegenMatrix[s4][s1]++;
   tegenMatrix[s2][s3]++; tegenMatrix[s3][s2]++;
   tegenMatrix[s3][s4]++; tegenMatrix[s4][s3]++;
+  printMatrices();
 } // updateMatrix
 
 //*************************************************************************
@@ -359,16 +402,37 @@ void Schema::printMatrices() {
 
 //*************************************************************************
 
+void Schema::printRondeMatrix() {
+  cout << endl << "Ronde Matrix" << endl;
+  cout << "   ";
+  for (int s = 0; s < nrSpelers; s++) {
+    cout << s << " ";
+  }
+  cout << endl;
+  for (int i = 0; i < nrSpelers; i++) {
+    cout << i << ": ";
+    for (int j = 0; j < nrSpelers; j++) {
+      for (int k = 0; k < 4; k++) {
+        cout << rondeMatrix[i][j][k] << " ";
+      }
+      cout << "| ";
+    }
+    cout << endl;
+  }
+}
+
+//*************************************************************************
+
 void Schema::resetSchema(int schema[MaxGrootteSchema]) {
-  aantalDeelschemas = 0;
   minWaarde = 1000000000;
+  waarde = 0;
   schemaGrootte = 0;
   for (int i = 0; i < nrSpelers; i++) {
     for (int j = 0; j < nrSpelers; j++) {
       voorMatrix[i][j] = 0;
       tegenMatrix[i][j] = 0;
       for (int z = 0; z < 4; z++) {
-        scoreMatrix[i][j][z] = -1;
+        rondeMatrix[i][j][z] = -1;
       }
     }
   }
@@ -385,18 +449,31 @@ void Schema::resetSchema(int schema[MaxGrootteSchema]) {
 //*************************************************************************
 
 float Schema::updateRondeMatrix(int schema[MaxGrootteSchema], bool undo) {
+  cout << "In Update Ronde Matrix" << endl;
+  cout << "Schemagrootte: " << schemaGrootte << endl;
   float score = 0;
-  float hulpRonde = schemaGrootte / (float) (nrSpelers - nrSpelers % 4);
-  int ronde = (hulpRonde > (int) hulpRonde) ? hulpRonde++ : hulpRonde;
+  // Bereken ronde
+  int ronde = (schemaGrootte - schemaGrootte % 4) / 4;
+  if (schemaGrootte % 4 == 0) {
+    ronde--;
+  }
+  cout << "Ronde: " << ronde << endl;
+
   int s = schema[schemaGrootte - 1];
   if (schemaGrootte % 4 > 1 || schemaGrootte % 4 == 0) {
-    score += updateRondeMatrix(s, schema[schemaGrootte - 2], undo);
+    cout << "1+ players" << endl;
+    score += updateRondeMatrix(s, schema[schemaGrootte - 2], ronde, undo);
+    cout << "Score: " << score << endl;
   }
   if (schemaGrootte % 4 == 3 || schemaGrootte % 4 == 0) {
-    score += updateRondeMatrix(s, schema[schemaGrootte - 3], undo);
+    cout << "2+ players" << endl;
+    score += updateRondeMatrix(s, schema[schemaGrootte - 3], ronde, undo);
+    cout << "Score: " << score << endl;
   }
   if (schemaGrootte % 4 == 0) {
-    score += updateRondeMatrix(s, schema[schemaGrootte - 4], undo);
+    cout << "3+ players" << endl;
+    score += updateRondeMatrix(s, schema[schemaGrootte - 4], ronde, undo);
+    cout << "Score: " << score << endl;
   }
   return score;
 }
@@ -404,11 +481,17 @@ float Schema::updateRondeMatrix(int schema[MaxGrootteSchema], bool undo) {
 //*************************************************************************
 
 float Schema::updateRondeMatrix(int s1, int s2, int ronde, bool undo) {
-  int r = vrijInRondeMatrix(s, s2);
-  rondeMatrix[s][s2][r] = (undo) ? -1 : ronde;
-  rondeMatrix[s2][s][r] = (undo) ? -1 : ronde;
-  if (r != 0) {
-    return deelScore(rondeMatrix[s][s2][r] - rondeMatrix[s][s2][r-1]);
+  int r = vrijInRondeMatrix(s1, s2);
+  cout << "Vrije ronde in matrix: " << r << endl;
+  if (!undo) {
+    rondeMatrix[s1][s2][r] = ronde;
+    rondeMatrix[s2][s1][r] = ronde;
+  } else {
+    rondeMatrix[s1][s2][r-1] = -1;
+    rondeMatrix[s2][s1][r-1] = -1;    
+  }
+  if (!undo && r != 0) {
+    return deelScore(rondeMatrix[s1][s2][r] - rondeMatrix[s1][s2][r-1]);
   }
   return 0;
 }
@@ -428,4 +511,24 @@ int Schema::vrijInRondeMatrix(int s1, int s2) {
 float Schema::deelScore(int x) {
   float s = randScore - x;
   return s * s;
+}
+
+//*************************************************************************
+
+void Schema::kopieerSchema(int a1[MaxGrootteSchema], int a2[MaxGrootteSchema]) {
+  for (int i = 0; i < schemaGrootte; i++) {
+    a1[i] = a2[i];
+  }
+}
+
+//*************************************************************************
+
+float Schema::schemaWaarde(int schema[MaxGrootteSchema]) {
+  float deelwaarde = 0;
+  int grootte = schemaGrootte;
+  for (int i = 2; i <= grootte; i++) {
+    schemaGrootte = i;
+   deelwaarde += updateRondeMatrix(schema, false);
+  }
+  return deelwaarde;
 }
