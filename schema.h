@@ -129,6 +129,9 @@ class Schema
     void kopieerSchema(int a1[MaxGrootteSchema], int a2[MaxGrootteSchema]);
     float schemaWaarde(int schema[MaxGrootteSchema]);
     void printRondeMatrix();
+    void nieuweRondeSpelers();
+    bool spelerVrij(int s);
+    void maakSpelerVrij(int s);
 
     int nrSpelers; // aantal spelers bij dit schema
     int schemaGrootte;
@@ -137,13 +140,15 @@ class Schema
     float minWaarde;
     int finalGrootte;
     int aantRondes;
+    int spelersPRonde;
     // Matrices voor bijhouden teamg
     int voorMatrix[MaxNrSpelers][MaxNrSpelers];
     int tegenMatrix[MaxNrSpelers][MaxNrSpelers];
     int rondeMatrix[MaxNrSpelers][MaxNrSpelers][4];
 
-// TODO: uw eigen private membervariabelen
+//  private membervariabelen
     vector<int> hulpSchema;
+    vector<vector<int>> vrijeSpelers;
     int minSchema[MaxGrootteSchema];
 };
 
