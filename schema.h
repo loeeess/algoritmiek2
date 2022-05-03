@@ -148,7 +148,7 @@ class Schema
 
 //  private membervariabelen
     vector<int> hulpSchema;
-    vector<vector<int>> vrijeSpelers;
+    vector< vector<int> > vrijeSpelers;
     int minSchema[MaxGrootteSchema];
 };
 

@@ -1,0 +1,6 @@
+make all --dry-run --keep-going --print-directory
+make: Entering directory `/Users/lochyin/Documents/University/Leiden/Pre-Master/Blok 2/Algoritmiek/Assignment 2/algoritmiek2'
+make: Leaving directory `/Users/lochyin/Documents/University/Leiden/Pre-Master/Blok 2/Algoritmiek/Assignment 2/algoritmiek2'
+ 
+make: *** No rule to make target `all'.
+

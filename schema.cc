@@ -103,7 +103,7 @@ bool Schema::leesInDeelschema(const char* invoerNaam) {
 
   // Check of waardes een spelernummer zijn
   vector<int> ronde;
-  for (int i = 0; i < hulpSchema.size(); i++) {
+  for (int i = 0; (unsigned) i < hulpSchema.size(); i++) {
     if (!integerInBereik(hulpSchema[i], 0, nrSpelers - 1)) {
       cout << "Error: spelernummer buiten bereik" << endl;
       hulpSchema.clear();
@@ -153,7 +153,7 @@ bool Schema::bepaalSchemaBT(int schema[MaxGrootteSchema],
 bool Schema::bepaalSchemaBTRecur(int schema[MaxGrootteSchema],
                                  long long &aantalDeelschemas) {
   if (!schemaCorrect()) {
-    // cout << "incorrect schema" << endl;
+    cout << "incorrect schema" << endl;
     return false;
   } else if (schemaCompleet()) {
     return true;
@@ -161,17 +161,22 @@ bool Schema::bepaalSchemaBTRecur(int schema[MaxGrootteSchema],
     // cout << "Enter BT recur" << endl;
     // cout << "spelers per ronde: " << spelersPRonde << endl;
     if (schemaGrootte % spelersPRonde == 0) {
-      // cout << "Reset vrije spelers" << endl;
+      cout << "Nieuwe ronde spelers" << endl;
       nieuweRondeSpelers();
+      cout << "uit nieuwe ronde spelers" << endl;
     }
     for (int s = 0; s < nrSpelers; s++) {
       cout << "check speler " << s << endl;
       cout << "spelersVrij" << endl;
-      for (int x : vrijeSpelers[vrijeSpelers.size() - 1]) {
-        cout << x << " ";
-      }
-      cout << endl;
+      // for (vector<int> v : vrijeSpelers) {
+      //   for (int x : v) {
+      //     cout << x << " ";
+      //   }
+      //   cout << endl;
+      // }
+      // cout << endl;
       if (spelerVrij(s)) {
+        cout << "In spelers vrij" << endl;
         aantalDeelschemas++;
         schema[schemaGrootte] = s;
         schemaGrootte++;
@@ -239,7 +244,7 @@ bool Schema::bepaalMinSchemaRecur(int schema[MaxGrootteSchema],
       schema[schemaGrootte] = s;
       schemaGrootte++;
       updateMatrix(schema);
-      drukAfSchema(schema);
+      // drukAfSchema(schema);
       float deelWaarde;
       if (bouwWaardeOp) {
         // printRondeMatrix();
@@ -305,7 +310,7 @@ bool Schema::schemaCorrect() {
 //*************************************************************************
 
 bool Schema::inVector(vector<int> v, int value) {
-  for (int i = 0; i < v.size(); i++) {
+  for (int i = 0; (unsigned) i < v.size(); i++) {
     if (v[i] == value) {
       return true;
     }
@@ -317,7 +322,7 @@ bool Schema::inVector(vector<int> v, int value) {
 
 void Schema::leesInDeelschema(int schema[MaxGrootteSchema]) {
   if (hulpSchema.size() > 0) {
-    for (int i = 0; i < hulpSchema.size(); i++) {
+    for (int i = 0; (unsigned) i < hulpSchema.size(); i++) {
       schema[i] = hulpSchema[i];
       if ((i + 1) % 4 == 1) {
         updateMatrix(hulpSchema[i], hulpSchema[i+1], hulpSchema[i+2], 
@@ -522,7 +527,7 @@ float Schema::updateRondeMatrix(int s1, int s2, int ronde, bool undo) {
 
 int Schema::vrijInRondeMatrix(int s1, int s2) {
   int i = 0;
-  while (rondeMatrix[s1][s2][i] != -1 && i < 3) {
+  while (rondeMatrix[s1][s2][i] != -1 && i < 4) {
     i++;
   }
   return i;
@@ -566,10 +571,24 @@ float Schema::schemaWaarde(int schema[MaxGrootteSchema]) {
 //*************************************************************************
 
 void Schema::nieuweRondeSpelers() {
-  vector<int> v;
-  for (int i = 0; i < nrSpelers; i++) {
-    v.push_back(i);
+  if (vrijeSpelers.size() > 0) {
+
+  cout << "vrije spelers[0] size: " << vrijeSpelers[0].size() << endl;
   }
+  for (int j = 0; (unsigned)j < vrijeSpelers.size(); j++) {
+    for (int z = 0; (unsigned)z < vrijeSpelers[j].size(); z++) {
+      cout << vrijeSpelers[j][z] << " ";
+    }
+    cout << endl;
+  }
+  vector<int> v;
+  cout << "Voor loop" << endl;
+  for (int i = 0; i < nrSpelers; i++) {
+    cout << "i: " << i << endl;
+    v.push_back(i);
+    cout << "pushback done" << endl;
+  }
+  cout << "na loop" << endl;
     vrijeSpelers.push_back(v);
 }
 
@@ -578,10 +597,10 @@ void Schema::nieuweRondeSpelers() {
 bool Schema::spelerVrij(int s) {
   int i = 0;
   int r = vrijeSpelers.size() - 1;
-  while (i < vrijeSpelers[r].size() && vrijeSpelers[r][i] != s) {
+  while ((unsigned) i < vrijeSpelers[r].size() && vrijeSpelers[r][i] != s) {
     i++;
   }
-  if (i < vrijeSpelers[r].size()) {
+  if ((unsigned) i < vrijeSpelers[r].size()) {
     vrijeSpelers[r].erase(vrijeSpelers[r].begin() + i);
     return true;
   }
@@ -591,8 +610,15 @@ bool Schema::spelerVrij(int s) {
 //*************************************************************************
 
 void Schema::maakSpelerVrij(int s) {
-  if (schemaGrootte % spelersPRonde == 3) {
-    vrijeSpelers.pop_back();
+  int r = vrijeSpelers.size() - 1;
+  if (r >= 0) {
+    if (schemaGrootte % spelersPRonde == 3 && vrijeSpelers[r].size() > 1) {
+      cout << "Try popback" << endl;
+      vrijeSpelers.pop_back();
+      cout << "Popback done" << endl;
+    }
+    cout << "Try pushback" << endl;
+    vrijeSpelers[r].push_back(s);
+    cout << "Pushback done" << endl;
   }
-  vrijeSpelers[vrijeSpelers.size() - 1].push_back(s);
 }
