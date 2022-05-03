@@ -275,7 +275,77 @@ bool Schema::bepaalMinSchemaRecur(int schema[MaxGrootteSchema],
 
 void Schema::bepaalSchemaGretig(int schema[MaxGrootteSchema]) {
 
-  leesInDeelschema(schema);
+  resetSchema(schema);
+  waarde = schemaWaarde(schema);
+
+  // cout << "Enter While" << endl;
+  vector<int> valideSpelers;
+  while (schemaGrootte < aantRondes * spelersPRonde) {
+    drukAfSchema(schema);
+    printMatrices();
+    printRondeMatrix();
+    if (schemaGrootte % spelersPRonde == 0) {
+      valideSpelers.clear();
+      for (int s = 0; s < nrSpelers; s++) {
+        valideSpelers.push_back(s);
+      }
+    }
+    cout << "Valide spelers" << endl;
+    for (int s = 0; (unsigned) s < valideSpelers.size(); s++) {
+      cout << valideSpelers[s] << " ";
+    }
+    cout << endl;
+    int minDeelWaarde = 1000000000;
+    int minFouteDeelWaarde = 100000000;
+    int besteSpeler = -1;
+    int besteFouteSpeler = -1;
+    bool correcteSpelerBestaat = false;
+    // cout << "Enter For" << endl;
+    for (int s : valideSpelers) {
+      // cout << "Schemagrootte: " << schemaGrootte << endl;
+      schema[schemaGrootte] = s;
+      schemaGrootte++;
+      // cout << "Before update matrix" << endl;
+      updateMatrix(schema);
+      // cout << "After update matrix" << endl;
+      // cout << "Check schema correct" << endl;
+      int deelWaarde = updateRondeMatrix(schema, false);
+      if (schemaCorrect()) {
+        // cout << "In Schema correct" << endl;
+        correcteSpelerBestaat = true;
+        if (deelWaarde < minDeelWaarde) {
+          minDeelWaarde = deelWaarde;
+          besteSpeler = s;
+        }
+      } else {
+        if (deelWaarde < minFouteDeelWaarde) {
+          minFouteDeelWaarde = deelWaarde;
+          besteFouteSpeler = s;
+        }
+      }
+      // cout << "Uit schema correct" << endl;
+      undoMatrix(schema);
+      updateRondeMatrix(schema, true);
+      schemaGrootte--;
+    }
+    // cout << "Leave for" << endl;
+    waarde += (correcteSpelerBestaat) ? minDeelWaarde : minFouteDeelWaarde;
+    schema[schemaGrootte] = (correcteSpelerBestaat) ? besteSpeler : besteFouteSpeler;
+    schemaGrootte++;
+    updateMatrix(schema);
+    updateRondeMatrix(schema, false);
+    cout << "Beste speler: " << besteSpeler << endl;
+    cout << "Beste foute speler: " << besteFouteSpeler << endl;
+    for (int i = 0; (unsigned) i < valideSpelers.size(); i++) {
+      if ((correcteSpelerBestaat && valideSpelers[i] == besteSpeler) || 
+      (!correcteSpelerBestaat && valideSpelers[i] == besteFouteSpeler)) {
+        cout << "i for erase: " << i << endl;
+        valideSpelers.erase(valideSpelers.begin() + i);
+      }
+    }
+  }
+
+  cout << "Waarde: " << waarde << endl;
 
 }  // bepaalSchemaGretig
 
