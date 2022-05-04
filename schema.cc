@@ -724,7 +724,29 @@ bool Schema::symmetrie(int s, int schema[MaxGrootteSchema]) {
 
   // Ronde symmetrie
   int spelerInRonde = schemaGrootte % spelersPRonde;
-  if (spelerInRonde )
+  if (spelerInRonde % 4 == 0 && !isKleinsteVrijeSpeler(s)) {
+    return true;
+  }
+
+  // Hele ronde symmetrie
+  if (schemaGrootte >= spelersPRonde && schemaGrootte % spelersPRonde == 0 &&
+  schema[schemaGrootte - spelersPRonde] > s) {
+    return true;
+  }
 
   return false;
 }
+
+//*************************************************************************
+
+bool Schema::isKleinsteVrijeSpeler(int s) {
+  int kleinste = 10000;
+  for (int x : vrijeSpelers) {
+    if (x < kleinste) {
+      kleinste = x;
+    }
+  }
+  return (s == kleinste) ? true : false;
+}
+
+//*************************************************************************

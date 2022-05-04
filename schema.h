@@ -118,17 +118,31 @@ class Schema
 // Uw eigen private memberfuncties
 
     // Bepaal of een waarde in een vector voorkomt
-    // Parameters:
-    //   v: vector waarin wordt gezocht
-    //   value: waarde die wordt opgezocht in vector
-    // Returns:
-    //   true, als waarde in vector zit;
-    //   false, als waarde niet in vector zit
     bool inVector(vector<int> v, int value);
 
+    // Lees het deelschema in door het meegeven van een schema
+    // Parameters:
+    //   schema[MaxGrootteSchema]: schema dat moet worden meegeleverd
     void leesInDeelschema(int schema[MaxGrootteSchema]);
+
+    // Bepaal schema recursief met behulp van backtracking
+    // (aangeroepen door bepaalSchemaBT()) 
+    // Als het schema niet correct of compleet is, moet het schema verder 
+    // worden opgebouwd door middel van backtracking.
+    // Voor elke speler wordt er gekeken of er een geldig schema kan worden
+    // gemaakt. Wanneer de speler nog beschikbaar is voor de ronde en
+    // geen symmetrie veroorzaakt in het al bestaande schema, kan deze worden
+    // toegevoegd aan schema[]. 
+    // Parameters:
+    //   schema[MaxGrootteSchema]: schema dat recursief wordt aangevuld
+    //   aantalDeelschemas: het aantal deelschemas dat recursief wordt opgeteld
+    // Returns:
+    //   true, als het schema compleet is,
+    //   false, als het schema niet compleet en correct is
     bool bepaalSchemaBTRecur(int schema[MaxGrootteSchema], 
                              long long &aantalDeelschemas);
+
+                               
     bool bepaalMinSchemaRecur(int schema[MaxGrootteSchema], 
                               long long &aantalDeelschemas, bool bouwWaardeOp);
     bool schemaCompleet();
@@ -150,6 +164,7 @@ class Schema
     void maakSpelerVrij(int s);
     void vulEersteRonde();
     bool symmetrie(int s, int schema[MaxGrootteSchema]);
+    bool isKleinsteVrijeSpeler(int s);
 
     int nrSpelers; // aantal spelers bij dit schema
     int schemaGrootte;
