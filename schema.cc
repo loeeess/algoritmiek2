@@ -157,6 +157,7 @@ bool Schema::bepaalSchemaBTRecur(int schema[MaxGrootteSchema],
     // cout << "incorrect schema" << endl;
     return false;
   } else if (schemaCompleet()) {
+    // cout << "schema compleet" << endl;
     return true;
   } else {
     // cout << "Enter BT recur" << endl;
@@ -176,13 +177,14 @@ bool Schema::bepaalSchemaBTRecur(int schema[MaxGrootteSchema],
       //   cout << endl;
       // }
       // cout << endl;
-      if (spelerVrij(s) && !symmetrie(s, schema)) {
+      if (!symmetrie(s, schema) && spelerVrij(s)) {
         // cout << "In spelers vrij" << endl;
         aantalDeelschemas++;
         schema[schemaGrootte] = s;
         schemaGrootte++;
         updateMatrix(schema);
-        drukAfSchema(schema);
+        // drukAfSchema(schema);
+        // printMatrices();
         if (bepaalSchemaBTRecur(schema, aantalDeelschemas)) {
           return true;
         }
@@ -201,6 +203,7 @@ bool Schema::bepaalSchemaBTRecur(int schema[MaxGrootteSchema],
 bool Schema::bepaalMinSchema(int schema[MaxGrootteSchema],
                              long long &aantalDeelschemas, bool bouwWaardeOp) { 
   aantalDeelschemas = 0;
+  vulEersteRonde();
   resetSchema(schema);
   waarde = schemaWaarde(schema);
   // printRondeMatrix();
@@ -239,34 +242,42 @@ bool Schema::bepaalMinSchemaRecur(int schema[MaxGrootteSchema],
     return true;
   } else {
     bool schemaGevonden = false;
+    if (schemaGrootte % spelersPRonde == 0) {
+      // cout << "Nieuwe ronde spelers" << endl;
+      nieuweRondeSpelers();
+      // cout << "uit nieuwe ronde spelers" << endl;
+    }
     for (int s = 0; s < nrSpelers; s++) {
       // cout << "speler: " << s << endl;
-      aantalDeelschemas++;
-      schema[schemaGrootte] = s;
-      schemaGrootte++;
-      updateMatrix(schema);
-      // drukAfSchema(schema);
-      float deelWaarde;
-      if (bouwWaardeOp) {
-        // printRondeMatrix();
-        deelWaarde = updateRondeMatrix(schema, false);
-        // printRondeMatrix();
-        // cout << "Deelwaarde+: " << deelWaarde << endl;
-        waarde += deelWaarde;
+      if (!symmetrie(s, schema) && spelerVrij(s)) {
+        aantalDeelschemas++;
+        schema[schemaGrootte] = s;
+        schemaGrootte++;
+        updateMatrix(schema);
+        // drukAfSchema(schema);
+        float deelWaarde;
+        if (bouwWaardeOp) {
+          // printRondeMatrix();
+          deelWaarde = updateRondeMatrix(schema, false);
+          // printRondeMatrix();
+          // cout << "Deelwaarde+: " << deelWaarde << endl;
+          waarde += deelWaarde;
+        }
+        if ((!bouwWaardeOp || waarde < minWaarde) && 
+        bepaalMinSchemaRecur(schema, aantalDeelschemas, bouwWaardeOp)) { 
+          // cout << "Recur called" << endl;
+          schemaGevonden = true;
+        }
+        undoMatrix(schema);
+        if (bouwWaardeOp) {
+          waarde -= deelWaarde;
+          int x = updateRondeMatrix(schema, true);
+          // cout << "Deelwaarde-: " << x << endl;
+          // printRondeMatrix();
+        }
+        schemaGrootte--;
+        maakSpelerVrij(s);
       }
-      if ((!bouwWaardeOp || waarde < minWaarde) && 
-      bepaalMinSchemaRecur(schema, aantalDeelschemas, bouwWaardeOp)) { 
-        // cout << "Recur called" << endl;
-        schemaGevonden = true;
-      }
-      undoMatrix(schema);
-      if (bouwWaardeOp) {
-        waarde -= deelWaarde;
-        int x = updateRondeMatrix(schema, true);
-        // cout << "Deelwaarde-: " << x << endl;
-        // printRondeMatrix();
-      }
-      schemaGrootte--;
     }
     return schemaGevonden;
   }
@@ -714,38 +725,53 @@ void Schema::vulEersteRonde() {
 //*************************************************************************
 
 bool Schema::symmetrie(int s, int schema[MaxGrootteSchema]) {
-  // Tafel symmetrie 
+  // Check tafel symmetrie 
   if (schemaGrootte % 4 == 1 && schema[schemaGrootte - 1] >= s) {
+    // cout << "sym1" << endl;
     return true;
   }
-  if ((schemaGrootte % 4 >= 2 && schema[schemaGrootte - 2] >= s) {
+  if (schemaGrootte % 4 >= 2 && schema[schemaGrootte - 2] >= s) {
+    // cout << "sym2" << endl;
     return true;
   }
 
-  // Ronde symmetrie
+  // Check ronde symmetrie
   int spelerInRonde = schemaGrootte % spelersPRonde;
   if (spelerInRonde % 4 == 0 && !isKleinsteVrijeSpeler(s)) {
+    // cout << "spelerinronde: " << spelerInRonde << endl;
+    // cout << "is niet kleinste: " << !isKleinsteVrijeSpeler(s) << endl; 
+    // cout << "sym3" << endl;
     return true;
   }
 
-  // Hele ronde symmetrie
-  if (schemaGrootte >= spelersPRonde && schemaGrootte % spelersPRonde == 0 &&
+  // Check hele ronde symmetrie
+  if (schemaGrootte - (signed) hulpSchema.size() >= spelersPRonde && 
+  schemaGrootte % spelersPRonde == 0 &&
   schema[schemaGrootte - spelersPRonde] > s) {
+    // cout << "sym4" << endl;
     return true;
   }
-
+// cout << "no sym" << endl;
   return false;
 }
 
 //*************************************************************************
 
 bool Schema::isKleinsteVrijeSpeler(int s) {
+  // Eerste speler van de ronde kan 0 of 1 zijn als er een speler wacht
+  if (nrSpelers % 4 == 1 && schemaGrootte % spelersPRonde == 0 && s <= 1) {
+    return true;
+  }
+
+  // Check kleinste vrije speler
   int kleinste = 10000;
-  for (int x : vrijeSpelers) {
+  for (int x : vrijeSpelers[vrijeSpelers.size() - 1]) {
+    // cout << "x: " << x << endl;
     if (x < kleinste) {
       kleinste = x;
     }
   }
+  // cout << "kleinste: " << kleinste << endl;
   return (s == kleinste) ? true : false;
 }
 
