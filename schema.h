@@ -107,14 +107,6 @@ class Schema
     void bepaalSchemaGretig(int schema[MaxGrootteSchema]);
 
   private:
-
-  //Boven elke functie moet een commentaarblokje komen met daarin een korte beschrijving
-//van wat de functie doet. Noem daarin tevens de gebruikte parameters: geef hun betekenis
-///en geef aan hoe ze eventueel veranderd worden door de functie. Geef bij memberfuncties
-//ook aan wat deze met de membervariabelen van het object doen. Let verder op de layout
-//(consequent inspringen) en op het overige commentaar bij de programmacode (zinvol en
-//kort).
-
 // Uw eigen private memberfuncties
 
     // Bepaal of een waarde in een vector voorkomt
@@ -132,56 +124,248 @@ class Schema
     // Voor elke speler wordt er gekeken of er een geldig schema kan worden
     // gemaakt. Wanneer de speler nog beschikbaar is voor de ronde en
     // geen symmetrie veroorzaakt in het al bestaande schema, kan deze worden
-    // toegevoegd aan schema[]. 
+    // toegevoegd aan schema[]. Per speler wordt er +1 toegevoegd aan het 
+    // aantalDeelschemas en de voor- en tegenMatrix worden geupdated met een 
+    // extra voor/tegen beurt voor de spelers. De recursie wordt aangeroepen,
+    // om te controleren of het schema nu wel compleet/correct is. Als dit 
+    // niet het geval is, worden de beurten uit de voor/tegenMatrix verwijderd
+    // en -1 gedaan bij de schemaGrootte. Ook wordt de speler weer teruggezet 
+    // in de vrijeSpelers vector. De functie returnt hier false.
     // Parameters:
     //   schema[MaxGrootteSchema]: schema dat recursief wordt aangevuld
     //   aantalDeelschemas: het aantal deelschemas dat recursief wordt opgeteld
     // Returns:
-    //   true, als het schema compleet is,
-    //   false, als het schema niet compleet en correct is
+    //   true: als het schema compleet is,
+    //   false: als het schema niet compleet en correct is
     bool bepaalSchemaBTRecur(int schema[MaxGrootteSchema], 
                              long long &aantalDeelschemas);
 
-                               
+    // Bepaal minimaal schema recursief met behulp van backtracking
+    // (aangeroepen door bepaalSchemaBT())
+    // Ook hier wordt weer gecontroleerd of het schema correct/compleet is.
+    // Als dit niet zo is, wordt er per speler gekeken of er geen symmetrie 
+    // plaatsvindt en dat de speler nog vrij is om te worden ingedeeld. 
+    // Als dit zo is, kan de speler worden toegevoegd aan het schema en wordt
+    // (net zoals bij bepaalSchemaBTRecur) het aantalDeelschemas en schemaGrootte 
+    // +1 gedaan en de matrices geupdated. Er wordt een deelwaarde berekend en 
+    // opgeteld bij de totale waarde. Als bouwWaardeOp false is en de waarde die er
+    // is kleiner is dan de minWaarde op dat moment, wordt de functie recursief 
+    // aangeroepen. Wanneer deze true returnt, is het schema klaar. Anders worden
+    // de matrices hersteld van de laatste beurt, de deelWaarde van de waarde afgehaald
+    // en wordt de speler weer teruggezet in de vrijeSpelers vector. De functie 
+    // returnt false, in de vorm van variabele schemaGevonden.
+    // Parameters:
+    //   schema[MaxGrootteSchema]: schema dat recursief wordt aangevuld
+    //   aantalDeelschemas: het aantal deelschemas dat recursief wordt opgeteld
+    //   bouwWaardeOp: true voor aanroep met onderweg opbouwen, 
+    //      false voor aanroep zonder 
+    // Returns:
+    //   schemaGevonden = true: als het schema compleet is,
+    //   schemaGevonden = false: als het schema niet compleet en correct is                    
     bool bepaalMinSchemaRecur(int schema[MaxGrootteSchema], 
                               long long &aantalDeelschemas, bool bouwWaardeOp);
+    
+    // Loop door de voor- en tegenMatrix en controleert of de voorMatrix
+    // overal een waarde van 1 bevat en tegenMatrix overal een waarde van 
+    // 2 bevat. Hier wordt geen rekening gehouden met de diagonalen.
+    // Returns:
+    //   true: als het schema compleet is
+    //   false: als het schema niet compleet is
     bool schemaCompleet();
+
+    // Loop door de voor- en tegenMatrix en controleert of de voorMatrix
+    // nergens een waarde hoger dan 1 bevat en tegenMatrix nergens
+    // een waarde hoger dan 2 bevat. Hier wordt geen rekening gehouden 
+    // met de diagonalen.
+    // Returns:
+    //   true: als het schema correct is
+    //   false: als het schema niet correct is
     bool schemaCorrect();
-    float updateRondeMatrix(int schema[MaxGrootteSchema], bool undo);
-    float updateRondeMatrix(int s1, int s2, int ronde, bool undo);
+
+    // Berekent de score voor het schema dmv de function overloading met
+    // updateRondeMatrix(int s1, int s2, int ronde, bool undo). Per speler
+    // in de ronde van de matrix wordt de score berekend. Zie onderstaande 
+    // functie voor toelichting op berekening.
+    // Parameters:
+    //    schema[MaxGrootteSchema]: tot nu toe opgebouwde schema
+    //    undo: boolean die bepaalt of de deelscore moet worden berekend of niet
+    //      in verband met het bepalen van het minimale schema
+    // Returns:
+    //   score: een double met de berekende score
+    double updateRondeMatrix(int schema[MaxGrootteSchema], bool undo);
+
+    // Berekent de score voor het schema dmv de rondeMatrix. Er wordt een 
+    // deelscore en deelwaarde berekend van het toevoegen van de schemawaarde.
+    // Berekent welke spelers elkaar hebben gezien en in welke ronde dit voorkwam.
+    // Parameters:
+    //    s1: speler 1
+    //    s2: speler 2
+    //    ronde: huidige ronde
+    //    undo: boolean die bepaalt of de deelscore moet worden berekend of niet
+    //      in verband met het bepalen van het minimale schema
+    // Returns:
+    //   0: als undo false is
+    //   deelscore: als undo true is
+    double updateRondeMatrix(int s1, int s2, int ronde, bool undo);
+
+    // Vult de voor- en tegenMatrix aan voor elke nieuwe schemawaarde, waarbij
+    // rekening wordt gehouden met de verschillende tafelgroottes.
+    // Parameters:
+    //    schema[MaxGrootteSchema]: tot nu toe opgebouwde schema
     void updateMatrix(int schema[MaxGrootteSchema]);
+
+    // Vult de voor- en tegenMatrix aan voor elke nieuwe tafel
+    // Parameters:
+    //    s1: speler 1
+    //    s2: speler 2
+    //    s3: speler 3
+    //    s4: speler 4
     void updateMatrix(int s1, int s2, int s3, int s4);
+
+    // Verwijdert de laatste schemawaarde in de voor- en tegenMatrix aan voor 
+    // waarbij rekening wordt gehouden met de verschillende tafelgroottes.
+    // Parameters:
+    //    schema[MaxGrootteSchema]: tot nu toe opgebouwde schema
     void undoMatrix(int schema[MaxGrootteSchema]);
+
+    // Print de voor- en tegenMatrix in de terminal
     void printMatrices();
+
+    // Reset de waardes in de voor- en tegenMatrix op 0 en de waardes in de 
+    // rondeMatrix op -1.
+    // Parameters:
+    //    schema[MaxGrootteSchema]: tot nu toe opgebouwde schema
     void resetSchema(int schema[MaxGrootteSchema]);
+
+    // Zoek naar de eerstvolgende lege plek in de rondeMatrix
+    // Parameters:
+    //    s1: speler 1
+    //    s2: speler 2
+    // Returns:
+    //    i: de eerstvolgende vrije plek in de rondeMatrix
     int vrijInRondeMatrix(int s1, int s2);
-    float deelScore(int x);
+
+    // Bereken de deelscore met behulp van het aantal rondes 
+    // Parameters:
+    //    x: het aantal rondes tussen 2x dat 2 spelers elkaar zien
+    // Returns:
+    //    s * s: de berekende deelscores
+    double deelScore(int x);
+
+    // Kopieert een schema naar een ander schema
+    // Parameters:
+    //    a1: het schema dat je wilt kopieëren
+    //    a2: het schema waarin je de kopie wil zetten
     void kopieerSchema(int a1[MaxGrootteSchema], int a2[MaxGrootteSchema]);
-    float schemaWaarde(int schema[MaxGrootteSchema]);
+
+    // Berekent de waarde van het schema, waarin de rondeMatrix eerst
+    // wordt reset en vervolgens de deelwaarde wordt berekend door de 
+    // grootte van het schema.
+    // Parameters:
+    //    schema[MaxGrootteSchema]: tot nu toe opgebouwde schema
+    // Returns:
+    //    deelwaarde: de opgetelde waarde van het schema
+    double schemaWaarde(int schema[MaxGrootteSchema]);
+    
+    // Print de rondeMatrix in de terminal
     void printRondeMatrix();
+    
+    // Voeg een nieuwe ronde toe met daarin alle vrije spelers, ingeladen
+    // in een nieuwe vector in de vector vrijeSpelers
     void nieuweRondeSpelers();
+    
+    // Check of een speler nog niet bezet is in de ronde
+    // Parameters:
+    //    s: speler om te checken
+    // Returns:
+    //    true: als de speler nog vrij is
+    //    false: als de speler bezet is
     bool spelerVrij(int s);
+    
+    // Zet de speler terug in de vrijeSpelers vector. Als er een ronde wordt
+    // teruggegaan, wordt de grootte van de vector veranderd, zodat de speler
+    // kan worden toegevoegd aan de juiste ronde.
+    // Parameters:
+    //    s: speler om toe te voegen
     void maakSpelerVrij(int s);
+    
+    // Vul eerste ronde in met 0, 1, 2, ..., nrSpelers, zodat de symmetrie in
+    // het schema kan worden voorkomen. Dit is alleen mogelijk als er nog geen
+    // deelschema is meegegeven.
     void vulEersteRonde();
+    
+    // Check of het schema dat wordt gemaakt een vorm van symmetrie bevat.
+    // Eerst wordt er gecheckt of een tafel symmetrie bevat. Er wordt gekeken
+    // of de eerste spelers in een tafel de kleinste vrije speler is.
+    // Dan wordt er gecheckt of er symmetrie plaatsvindt tussen de rondes.
+    // De speler in de eerdere tafel moet een kleinere waarde hebben dan de 
+    // hieropvolgende tafels voor het voorkmoen van symmetrie.
+    // Parameters:
+    //    s: speler om te checken
+    //    schema[MaxGrootteSchema]: tot nu toe opgebouwde schema
+    // Returns:
+    //    true: als er symmetrie in het schema aanwezig is
+    //    false: als er geen symmetrie in het schema aanwezig is
     bool symmetrie(int s, int schema[MaxGrootteSchema]);
+    
+    // Check of de speler de kleinste vrije speler is
+    // Parameters:
+    //     s: speler om te checken
+    // Returns:
+    //     true: als de speler de kleinste is
+    ///    false: als de speler niet de kleinste is
     bool isKleinsteVrijeSpeler(int s);
+    
+    // Check of hulpSchema correct is. Er wordt gecheckt of de waardes in
+    // het schema een geldig spelernummer zijn. Ook wordt er checkt of de 
+    // spelers niet meer dan 1x zijn toegewezen. 
+    // Parameters:
+    //    aantalRondes: aantal rondes dat er tot nu toe is
+    // Returns: 
+    //    true: als het hulpSchema correct is
+    //    false als het hulpSchema niet correct is
+    bool hulpSchemaCorrect(int aantalRondes);
 
-    int nrSpelers; // aantal spelers bij dit schema
+    // Aantal spelers bij dit schema
+    int nrSpelers; 
+
+    // De grootte van het schema tot nu toe
     int schemaGrootte;
-    float randScore;
-    float waarde;
-    float minWaarde;
-    int finalGrootte;
-    int aantRondes;
-    int spelersPRonde;
-    // Matrices voor bijhouden teamg
-    int voorMatrix[MaxNrSpelers][MaxNrSpelers];
-    int tegenMatrix[MaxNrSpelers][MaxNrSpelers];
-    int rondeMatrix[MaxNrSpelers][MaxNrSpelers][4];
 
-//  private membervariabelen
+    // Gemiddeld aantal rondes waartussen spelers elkaar zien
+    double randScore;
+    
+    // Waarde die wordt bepaald voor het minimale schema
+    double waarde;
+    
+    // Minimale waarde voor het berekenen van de minimale scores 
+    double minWaarde;
+    
+    // De uiteindelijke grootte van het schema
+    int finalGrootte;
+    
+    // Het aantal rondes tot nu toe
+    int aantRondes;
+    
+    // Het aantal spelers dat in een ronde voorkomt
+    int spelersPRonde;
+    
+    // Matrix waarin de teams zijn genoteerd
+    int voorMatrix[MaxNrSpelers][MaxNrSpelers]; 
+    
+    // Matrix waarin de tegenstanders worden genoteerd
+    int tegenMatrix[MaxNrSpelers][MaxNrSpelers]; 
+
+    // Matrix waarin de rondes worden genoteerd
+    int rondeMatrix[MaxNrSpelers][MaxNrSpelers][MaxNrSpelers];
+
+    // Hulpschema om het volledige schema mee op te bouwen
     vector<int> hulpSchema;
+
+    // De vrije spelers per ronde
     vector< vector<int> > vrijeSpelers;
+
+    // Minimaal schema
     int minSchema[MaxGrootteSchema];
 };
 
