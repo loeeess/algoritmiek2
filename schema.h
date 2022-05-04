@@ -108,8 +108,24 @@ class Schema
 
   private:
 
-// TODO: uw eigen private memberfuncties
+  //Boven elke functie moet een commentaarblokje komen met daarin een korte beschrijving
+//van wat de functie doet. Noem daarin tevens de gebruikte parameters: geef hun betekenis
+///en geef aan hoe ze eventueel veranderd worden door de functie. Geef bij memberfuncties
+//ook aan wat deze met de membervariabelen van het object doen. Let verder op de layout
+//(consequent inspringen) en op het overige commentaar bij de programmacode (zinvol en
+//kort).
+
+// Uw eigen private memberfuncties
+
+    // Bepaal of een waarde in een vector voorkomt
+    // Parameters:
+    //   v: vector waarin wordt gezocht
+    //   value: waarde die wordt opgezocht in vector
+    // Returns:
+    //   true, als waarde in vector zit;
+    //   false, als waarde niet in vector zit
     bool inVector(vector<int> v, int value);
+
     void leesInDeelschema(int schema[MaxGrootteSchema]);
     bool bepaalSchemaBTRecur(int schema[MaxGrootteSchema], 
                              long long &aantalDeelschemas);
@@ -132,6 +148,8 @@ class Schema
     void nieuweRondeSpelers();
     bool spelerVrij(int s);
     void maakSpelerVrij(int s);
+    void vulEersteRonde();
+    bool symmetrie(int s, int schema[MaxGrootteSchema]);
 
     int nrSpelers; // aantal spelers bij dit schema
     int schemaGrootte;
@@ -148,7 +166,7 @@ class Schema
 
 //  private membervariabelen
     vector<int> hulpSchema;
-    vector< vector<int> > vrijeSpelers;
+    vector<vector<int>> vrijeSpelers;
     int minSchema[MaxGrootteSchema];
 };
 

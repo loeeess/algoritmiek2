@@ -143,6 +143,7 @@ void Schema::drukAfSchema(int schema[MaxGrootteSchema]) {
 bool Schema::bepaalSchemaBT(int schema[MaxGrootteSchema], 
                             long long &aantalDeelschemas) {
   aantalDeelschemas = 0;
+  vulEersteRonde();
   resetSchema(schema);
 
   return bepaalSchemaBTRecur(schema, aantalDeelschemas);
@@ -166,26 +167,26 @@ bool Schema::bepaalSchemaBTRecur(int schema[MaxGrootteSchema],
       // cout << "uit nieuwe ronde spelers" << endl;
     }
     for (int s = 0; s < nrSpelers; s++) {
-      cout << "check speler " << s << endl;
-      cout << "spelersVrij" << endl;
-      for (vector<int> v : vrijeSpelers) {
-        for (int x : v) {
-          cout << x << " ";
-        }
-        cout << endl;
-      }
-      cout << endl;
-      if (spelerVrij(s)) {
-         cout << "In spelers vrij" << endl;
+      // cout << "check speler " << s << endl;
+      // cout << "spelersVrij" << endl;
+      // for (vector<int> v : vrijeSpelers) {
+      //   for (int x : v) {
+      //     cout << x << " ";
+      //   }
+      //   cout << endl;
+      // }
+      // cout << endl;
+      if (spelerVrij(s) && !symmetrie(s, schema)) {
+        // cout << "In spelers vrij" << endl;
         aantalDeelschemas++;
         schema[schemaGrootte] = s;
         schemaGrootte++;
         updateMatrix(schema);
-         drukAfSchema(schema);
+        drukAfSchema(schema);
         if (bepaalSchemaBTRecur(schema, aantalDeelschemas)) {
           return true;
         }
-        cout << "Zet speler terug" << endl;
+        // cout << "Zet speler terug" << endl;
         undoMatrix(schema);
         schemaGrootte--;
         maakSpelerVrij(s);
@@ -683,18 +684,47 @@ void Schema::maakSpelerVrij(int s) {
   int r = vrijeSpelers.size() - 1;
   if (r >= 0) {
     if (schemaGrootte % spelersPRonde == spelersPRonde - 1 && vrijeSpelers[r].size() > 1) {
-      cout << "Try popback" << endl;
+    //  cout << "Try popback" << endl;
       vrijeSpelers.pop_back();
-      cout << "Popback done" << endl;
+    //  cout << "Popback done" << endl;
       r = vrijeSpelers.size() - 1;
     }
     
-    cout << "size: " << vrijeSpelers[r].size() << endl;
+   // cout << "size: " << vrijeSpelers[r].size() << endl;
     
-    cout << "Try pushback" << endl;
+   // cout << "Try pushback" << endl;
 
     vrijeSpelers[r].push_back(s);
 
-    cout << "Pushback done" << endl;
+   // cout << "Pushback done" << endl;
   }
+}
+
+//*************************************************************************
+
+void Schema::vulEersteRonde() {
+  if (hulpSchema.size() == 0) {
+    for (int s = 0; s < spelersPRonde; s++) {
+      hulpSchema.push_back(s);
+    }
+    schemaGrootte = hulpSchema.size();
+  }
+}
+
+//*************************************************************************
+
+bool Schema::symmetrie(int s, int schema[MaxGrootteSchema]) {
+  // Tafel symmetrie 
+  if (schemaGrootte % 4 == 1 && schema[schemaGrootte - 1] >= s) {
+    return true;
+  }
+  if ((schemaGrootte % 4 >= 2 && schema[schemaGrootte - 2] >= s) {
+    return true;
+  }
+
+  // Ronde symmetrie
+  int spelerInRonde = schemaGrootte % spelersPRonde;
+  if (spelerInRonde )
+
+  return false;
 }
