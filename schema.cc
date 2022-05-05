@@ -269,7 +269,7 @@ void Schema::bepaalSchemaGretig(int schema[MaxGrootteSchema]) {
       }
     }
     // Houdt beste spelers en waardes bij (ook voor incorrecte schemas)
-    int minDeelWaarde = 1000000000; int minFouteDeelWaarde = 100000000;
+    double minDeelWaarde = 1000000000; double minFouteDeelWaarde = 100000000;
     int besteSpeler = -1; int besteFouteSpeler = -1;
     bool correcteSpelerBestaat = false;
     // Kies alleen uit valide spelers
@@ -295,11 +295,10 @@ void Schema::bepaalSchemaGretig(int schema[MaxGrootteSchema]) {
       schemaGrootte--;
     }
     // Voeg beste speler toe
-    waarde += (correcteSpelerBestaat) ? minDeelWaarde : minFouteDeelWaarde;
     schema[schemaGrootte] = (correcteSpelerBestaat) ? besteSpeler : besteFouteSpeler;
     schemaGrootte++;
     updateMatrix(schema);
-    updateRondeMatrix(schema, false);
+    waarde += updateRondeMatrix(schema, false);
     // Haal speler weg uit lijst met vrije spelers
     for (int i = 0; (unsigned) i < valideSpelers.size(); i++) {
       if ((correcteSpelerBestaat && valideSpelers[i] == besteSpeler) || 
@@ -524,8 +523,8 @@ void Schema::resetSchema(int schema[MaxGrootteSchema]) {
 double Schema::updateRondeMatrix(int schema[MaxGrootteSchema], bool undo) {
   double score = 0; // Houdt deelscore bij
   // Bereken huidige ronde
-  int ronde = (schemaGrootte - schemaGrootte % 4) / 4; 
-  if (schemaGrootte % 4 == 0) {
+  int ronde = (schemaGrootte - schemaGrootte % spelersPRonde) / spelersPRonde; 
+  if (schemaGrootte % spelersPRonde == 0) {
     ronde--;
   }
 
