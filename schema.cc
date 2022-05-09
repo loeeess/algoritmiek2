@@ -184,63 +184,47 @@ bool Schema::bepaalMinSchema(int schema[MaxGrootteSchema],
 // Bepaal schema met backtracking en neem schema met laagste waarde
 // Als bouwWaardeOp true is, backtrack ook als deelschema een grotere waarde
 // heeft als minwaarde
-// TODO: clean up & debug
+// TODO: clean up
 bool Schema::bepaalMinSchemaRecur(int schema[MaxGrootteSchema],
                               long long &aantalDeelschemas, bool bouwWaardeOp) {
-  // cout << "Enter recursie" << endl;
-  // cout << "min waarde: " << minWaarde << endl;
-  // cout << "waarde: " << waarde << endl;
   if (!schemaCorrect()) {
-    // cout << "Schema niet correct" << endl;
     return false;
   } else if (schemaCompleet()) {
-    // cout << endl << "Schema compleet" << endl;
     if (!bouwWaardeOp) {
       waarde = schemaWaarde(schema);
-      // cout << "Waarde na schemaWaarde: " << waarde << endl;
     }
     if (waarde < minWaarde) {
       minWaarde = waarde;
       kopieerSchema(minSchema, schema);
       finalGrootte = schemaGrootte;
-      // drukAfSchema(minSchema);
       // cout << "Nieuwe minWaarde: " << minWaarde << endl;
     }
+
     return true;
   } else {
     bool schemaGevonden = false;
     if (schemaGrootte % spelersPRonde == 0) {
-      // cout << "Nieuwe ronde spelers" << endl;
       nieuweRondeSpelers();
-      // cout << "uit nieuwe ronde spelers" << endl;
     }
     for (int s = 0; s < nrSpelers; s++) {
-      // cout << "speler: " << s << endl;
       if (!symmetrie(s, schema) && spelerVrij(s)) {
         aantalDeelschemas++;
         schema[schemaGrootte] = s;
         schemaGrootte++;
         updateMatrix(schema);
-        // drukAfSchema(schema);
         double deelWaarde;
         if (bouwWaardeOp) {
-          // printRondeMatrix();
           deelWaarde = updateRondeMatrix(schema, false);
-          // printRondeMatrix();
-          // cout << "Deelwaarde+: " << deelWaarde << endl;
           waarde += deelWaarde;
         }
         if ((!bouwWaardeOp || waarde < minWaarde) && 
         bepaalMinSchemaRecur(schema, aantalDeelschemas, bouwWaardeOp)) { 
-          // cout << "Recur called" << endl;
           schemaGevonden = true;
         }
         undoMatrix(schema);
         if (bouwWaardeOp) {
           waarde -= deelWaarde;
-          int x = updateRondeMatrix(schema, true);
-          // cout << "Deelwaarde-: " << x << endl;
-          // printRondeMatrix();
+          updateRondeMatrix(schema, true);
         }
         schemaGrootte--;
         maakSpelerVrij(s);

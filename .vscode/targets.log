@@ -7,7 +7,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 
 # This program built for i386-apple-darwin11.3.0
 
-# Make data base, printed on Wed May  4 20:52:21 2022
+# Make data base, printed on Sun May  8 16:54:20 2022
 
 # Variables
 
@@ -40,7 +40,7 @@ VSCODE_VERBOSE_LOGGING = true
 # environment
 __CFBundleIdentifier = com.microsoft.VSCode
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /var/folders/ts/nw370vg90kl7568vjwqcrqt40000gn/T/vscode-ipc-bd5b9370-8bb8-4577-bd5e-2ec3725aac69.sock
+VSCODE_IPC_HOOK_EXTHOST = /var/folders/ts/nw370vg90kl7568vjwqcrqt40000gn/T/vscode-ipc-2f3624a8-d9ef-47dd-8480-31be5df97d9c.sock
 # environment
 VSCODE_CWD = /
 # environment
@@ -48,17 +48,19 @@ PATH = /Users/lochyin/.nvm/versions/node/v16.10.0/bin:/Users/lochyin/.rbenv/shim
 # environment
 NVM_BIN = /Users/lochyin/.nvm/versions/node/v16.10.0/bin
 # environment
+LaunchInstanceID = D0ECF767-EBCA-4C0C-AFDD-8021BEFCC903
+# environment
 VSCODE_LOG_STACK = false
 # environment
 ELECTRON_RUN_AS_NODE = 1
 # default
 .FEATURES := target-specific order-only second-expansion else-if archives jobserver check-symlink
 # environment
-SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.eVFnkLe021/Listeners
+SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.LkH2Iirub1/Listeners
 # automatic
 %F = $(notdir $%)
 # environment
-DISPLAY = /private/tmp/com.apple.launchd.CXg3NYca7O/org.macosforge.xquartz:0
+DISPLAY = /private/tmp/com.apple.launchd.HgKUsiy3HO/org.macosforge.xquartz:0
 # environment
 VSCODE_PIPE_LOGGING = true
 # makefile (from `Makefile', line 5)
@@ -74,7 +76,7 @@ HOME = /Users/lochyin
 # default
 MAKEFILEPATH = $(shell /usr/bin/xcode-select -print-path 2>/dev/null || echo /Developer)/Makefiles
 # environment
-VSCODE_CODE_CACHE_PATH = /Users/lochyin/Library/Application Support/Code/CachedData/e18005f0f1b33c29e81d732535d8c0e47cafb0b5
+VSCODE_CODE_CACHE_PATH = /Users/lochyin/Library/Application Support/Code/CachedData/dfd34e8260c270da74b5c2d86d61aee4b6d56977
 # environment
 LOGNAME = lochyin
 # environment
@@ -112,7 +114,7 @@ TMPDIR = /var/folders/ts/nw370vg90kl7568vjwqcrqt40000gn/T/
 # automatic
 *F = $(notdir $*)
 # environment
-VSCODE_IPC_HOOK = /Users/lochyin/Library/Application Support/Code/1.66.0-main.sock
+VSCODE_IPC_HOOK = /Users/lochyin/Library/Application Support/Code/1.66.2-main.sock
 # makefile
 MAKEFLAGS = Rrqp
 # environment
@@ -139,6 +141,8 @@ RBENV_SHELL = bash
 <F = $(notdir $<)
 # environment
 LC_ALL = C
+# environment
+SECURITYSESSIONID = 186a3
 # automatic
 ^F = $(notdir $^)
 # default
@@ -152,9 +156,9 @@ LANG = C
 # environment
 TERM = xterm-color
 # environment
-VSCODE_PID = 74024
+VSCODE_PID = 536
 # variable set hash-table stats:
-# Load=71/1024=7%, Rehash=0, Collisions=6/96=6%
+# Load=73/1024=7%, Rehash=0, Collisions=6/98=6%
 
 # Pattern-specific Variable Values
 
@@ -283,7 +287,7 @@ main.cc:
 # strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
 # strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
 
-# Finished Make data base on Wed May  4 20:52:21 2022
+# Finished Make data base on Sun May  8 16:54:20 2022
 
  
 make: *** No rule to make target `all'.  Stop.
