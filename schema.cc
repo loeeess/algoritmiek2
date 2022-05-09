@@ -184,7 +184,6 @@ bool Schema::bepaalMinSchema(int schema[MaxGrootteSchema],
 // Bepaal schema met backtracking en neem schema met laagste waarde
 // Als bouwWaardeOp true is, backtrack ook als deelschema een grotere waarde
 // heeft als minwaarde
-// TODO: clean up
 bool Schema::bepaalMinSchemaRecur(int schema[MaxGrootteSchema],
                               long long &aantalDeelschemas, bool bouwWaardeOp) {
   if (!schemaCorrect()) {
