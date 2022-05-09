@@ -242,7 +242,6 @@ bool Schema::bepaalMinSchemaRecur(int schema[MaxGrootteSchema],
 void Schema::bepaalSchemaGretig(int schema[MaxGrootteSchema]) {
   // Reset schema(waardes) en matrices
   resetSchema(schema);
-  waarde = schemaWaarde(schema);
   // Houdt bij welke spelers nog niet gebruikt zijn in een ronde
   vector<int> valideSpelers; 
   while (schemaGrootte < aantRondes * spelersPRonde) {
@@ -282,7 +281,7 @@ void Schema::bepaalSchemaGretig(int schema[MaxGrootteSchema]) {
     schema[schemaGrootte] = (correcteSpelerBestaat) ? besteSpeler : besteFouteSpeler;
     schemaGrootte++;
     updateMatrix(schema);
-    waarde += updateRondeMatrix(schema, false);
+    updateRondeMatrix(schema, false);
     // Haal speler weg uit lijst met vrije spelers
     for (int i = 0; (unsigned) i < valideSpelers.size(); i++) {
       if ((correcteSpelerBestaat && valideSpelers[i] == besteSpeler) || 
@@ -291,7 +290,6 @@ void Schema::bepaalSchemaGretig(int schema[MaxGrootteSchema]) {
       }
     }
   }
-  cout << "Waarde: " << waarde << endl;
 }  // bepaalSchemaGretig
 
 //*************************************************************************
