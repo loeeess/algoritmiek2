@@ -308,13 +308,15 @@ class Schema
     //    false: als er geen symmetrie in het schema aanwezig is
     bool symmetrie(int s, int schema[MaxGrootteSchema]);
     
-    // Check of de speler de kleinste vrije speler is
+    // Check of eerste speler van een tafel groter is dan de eerste speler van
+    // de vorige tafel
     // Parameters:
     //     s: speler om te checken
+    //     schema[MaxGrootteSchema]: tot nu toe opgebouwde schema
     // Returns:
-    //     true: als de speler de kleinste is
-    ///    false: als de speler niet de kleinste is
-    bool isKleinsteVrijeSpeler(int s);
+    //     true: als de speler de groter is 
+    ///    false: als de speler niet groter is
+    bool isGroterDanVorigeTafel(int s, int schema[MaxGrootteSchema]);
     
     // Check of hulpSchema correct is. Er wordt gecheckt of de waardes in
     // het schema een geldig spelernummer zijn. Ook wordt er checkt of de 

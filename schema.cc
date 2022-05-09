@@ -669,11 +669,11 @@ bool Schema::symmetrie(int s, int schema[MaxGrootteSchema]) {
     return true;
   }
 
-  // Check ronde symmetrie: 1e speler van een tafel moet de kleinste vrije 
-  // speler zijn. Alleen eerste speler van een ronde kan eventueel 1 zijn
-  // als 0 die ronde moet wachten
+  // Check ronde symmetrie: 1e speler van een tafel moet groter zijn dan de 
+  // eerste speler van de vorige tafel. Eerste speler van een ronde kan 
+  // 0 zijn of 1 als 0 moet wachten
   int spelerInRonde = schemaGrootte % spelersPRonde;
-  if (spelerInRonde % 4 == 0 && !isKleinsteVrijeSpeler(s)) {
+  if (spelerInRonde % 4 == 0 && !isGroterDanVorigeTafel(s, schema)) {
     return true;
   }
 
@@ -690,22 +690,23 @@ bool Schema::symmetrie(int s, int schema[MaxGrootteSchema]) {
 
 //*************************************************************************
 
-// Check of speler s de kleinste vrije speler is
-bool Schema::isKleinsteVrijeSpeler(int s) {
+// Check of eerste speler van een tafel groter is dan de eerste speler van
+// de vorige tafel
+bool Schema::isGroterDanVorigeTafel(int s, int schema[MaxGrootteSchema]) {
+  // Eerste speler van de ronde kan alleen 0 zijn als er geen spelers wachten
+  if (nrSpelers % 4 == 0 && schemaGrootte % spelersPRonde == 0 && s == 0) {
+    return true;
+  }
   // Eerste speler van de ronde kan 0 of 1 zijn als er een speler wacht
   if (nrSpelers % 4 == 1 && schemaGrootte % spelersPRonde == 0 && s <= 1) {
     return true;
   }
-
-  // Check of kleinste vrije speler
-  int kleinste = 10000;
-  for (int x : vrijeSpelers[vrijeSpelers.size() - 1]) {
-    if (x < kleinste) {
-      kleinste = x;
-    }
+  // Eerste speler van de tafel moet groter zijn dan eerste speler vorige tafel
+  if (schemaGrootte % spelersPRonde >= 4 && s > schema[schemaGrootte - 4]) {
+    return true;
   }
 
-  return (s == kleinste) ? true : false;
+  return false;
 }
 
 //*************************************************************************
